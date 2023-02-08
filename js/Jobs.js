@@ -6,18 +6,18 @@ export default class Jobs {
 
         this.data = reactive({
             jobs: [],
-            jobsAreLoading: true
+            jobsAreLoading: "true"
         })
 
         this.init()
     }
 
     async init() {
-        // await new Promise(r => setTimeout(r, 2000))
+        // await new Promise(r => setTimeout(r, 4000))
 
         this.data.jobs = await this.getJobs()
         
-        this.data.jobsAreLoading = false
+        this.data.jobsAreLoading = "false"
     }
 
     async getJobs() {
@@ -46,15 +46,23 @@ export default class Jobs {
     }
 
     render() {
-        const ariaBusy = this.data.jobsAreLoading
-        const jobs = this.renderJobs.bind(this)
+        const ariaBusy = () => this.data.jobsAreLoading
+        const reactiveJobs = () => this.renderJobs()
 
         return html`
 
         <section id="jobs" aria-live="polite" aria-busy="${ariaBusy}">
             <h2 class="visually-hidden">Jobs Listing</h2>
 
-            <ul class="jobs">${jobs}</ul>
+            <div class="jobs__loader">
+                <span class="visually-hidden">Jobs are loading</span>
+
+                <div class="loader__circle"></div>
+                <div class="loader__circle"></div>
+                <div class="loader__circle"></div>
+            </div>
+
+            <ul class="jobs">${reactiveJobs}</ul>
         </section>
 
         `
@@ -63,8 +71,8 @@ export default class Jobs {
     renderJobs() {
         return this.getFilteredJobs().map((job, i) => {
             const classList = `job${job.featured ? ' job--featured' : ''}`
-            const description = this.renderDescription(job)
-            const keywords = this.renderKeywords(job)
+            const renderDescription = this.renderDescription(job)
+            const renderKeywords = this.renderKeywords(job)
 
             return html`
     
@@ -72,8 +80,8 @@ export default class Jobs {
                 <article class="job__wrapper">
                     <h3 class="visually-hidden">${job.position} at ${job.company}</h3>
 
-                    ${description}
-                    ${keywords}
+                    ${renderDescription}
+                    ${renderKeywords}
                 </article>
             </li>
     
@@ -82,11 +90,13 @@ export default class Jobs {
     }
 
     renderDescription(job) {
-        const tags = this.renderTags(job)
+        const renderTags = this.renderTags(job)
 
-        const logo = job.logo
-            ? html`<img src="${job.logo}" alt="${job.company} Logo" class="job__logo">`
-            : ''
+        const logo = job.logo ? html`
+        
+        <img src="${job.logo}" alt="${job.company} Logo" class="job__logo">
+        
+        ` : ''
 
         return html`
 
@@ -97,7 +107,7 @@ export default class Jobs {
 
             <div class="job__main">
                 <div class="job__top">
-                    ${tags}
+                    ${renderTags}
                     
                     <p class="job__company">
                         <span class="visually-hidden">Company</span>
@@ -141,7 +151,7 @@ export default class Jobs {
         
         ` : ''
 
-        const tagFeatured = job.new ? html`
+        const tagFeatured = job.featured ? html`
 
         <span class="job__tag job__tag--featured">Featured</span>
 
@@ -164,14 +174,14 @@ export default class Jobs {
 
         if (keywords.length == 0) return ''
 
-        const keywordsList = this.renderKeywordsList(keywords)
+        const reactiveKeywords = () => this.renderKeywordsList(keywords)
 
         return html`
         
         <section class="job__keywords">
             <h4 class="visually-hidden">Job keywords</h4>
 
-            <ul class="keywords__list">${keywordsList}</ul>
+            <ul class="keywords__list">${reactiveKeywords}</ul>
         </section>
 
         `
@@ -181,32 +191,24 @@ export default class Jobs {
         const filters = this.filters.get()
         
         return keywords.map(keyword => {
+            const onClick = () => this.filters.toggle(keyword)
             const isPressed = filters.includes(keyword)
-
-            const { classList, label, onClick } = isPressed
-                ? {
-                    classList: 'keyword__btn keyword__btn--pressed',
-                    onClick: this.filters.remove.bind(this.filters, keyword),
-                    label: 'Remove from filters'
-                }
-                : {
-                    classList: 'keyword__btn',
-                    onClick: this.filters.add.bind(this.filters, keyword),
-                    label: 'Add to filters'
-                }
+            const label = `${isPressed ? 'Remove from' : 'Add to'} filters`
             
             return html`
     
             <li class="job__keyword">
                 <span class="visually-hidden">${keyword}</span>
                 
-                <button class="${classList}" @click="${onClick}" aria-controls="jobs">
+                <button class="keyword__btn" @click="${onClick}"
+                    aria-pressed="${isPressed}"
+                    aria-controls="jobs">
                     <span class="visually-hidden">${label}</span>
                     <span aria-hidden="true">${keyword}</span>
                 </button>
             </li>
     
-            `
+            `.key(Math.random())
         })
     }
 }

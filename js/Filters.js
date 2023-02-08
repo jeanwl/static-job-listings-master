@@ -8,15 +8,15 @@ export default class Filters {
     }
 
     render() {
-        const onClick = this.clear.bind(this)
-        const filters = this.renderFilters.bind(this)
+        const reactiveFilters = () => this.renderFilters()
+        const onClick = () => this.clear()
 
         return html`
 
         <section class="filters">
             <h2 class="visually-hidden">Jobs Filters</h2>
 
-            <ul class="filters__list">${filters}</ul>
+            <ul class="filters__list">${reactiveFilters}</ul>
 
             <button class="filters__clear" @click="${onClick}" aria-controls="jobs">
                 Clear
@@ -29,7 +29,7 @@ export default class Filters {
 
     renderFilters() {
         return this.data.filters.map(filter => {
-            const onClick = this.remove.bind(this, filter)
+            const onClick = () => this.toggle(filter)
 
             return html`
     
@@ -48,21 +48,12 @@ export default class Filters {
         return this.data.filters
     }
 
-    add(filter) {
-        const { filters } = this.data
-
-        if (filters.includes(filter)) return
-
-        filters.push(filter)
-    }
-
-    remove(filter) {
+    toggle(filter) {
         const { filters } = this.data
         const index = filters.indexOf(filter)
-
-        if (index < 0) return
-
-        filters.splice(index, 1)
+        
+        if (index < 0) filters.push(filter)
+        else filters.splice(index, 1)
     }
 
     clear() {

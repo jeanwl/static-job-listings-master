@@ -47,6 +47,7 @@ button {
     cursor: pointer;
 }
 
+/* move-up? */
 @keyframes fade-in {
     from {
         opacity: 0;
@@ -200,6 +201,31 @@ body:before {
         margin-bottom: 24px;
     }
 }
+
+.jobs__loader {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+#jobs[aria-busy=false] .jobs__loader {
+    display: none;
+}
+
+.loader__circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    
+    animation: fade-in 1.4s alternate infinite;
+}
+.loader__circle:nth-child(2) {
+    animation-delay: -1.4s;
+}
+.loader__circle:nth-child(3) {
+    animation-delay: -0.7s;
+}
+
 
 @media (max-width: 767.98px) {
     .job__wrapper {
@@ -413,25 +439,24 @@ body:before {
     border-radius: 4px;
     user-select: none;
 }
-.keyword__btn--pressed {
+.keyword__btn[aria-pressed=true] {
     color: white;
     background-color: var(--primary);
 }
-.keyword__btn:not(.keyword__btn--pressed) {
+.keyword__btn[aria-pressed=false] {
     color: var(--primary);
     background-color: var(--neutral-2);
 }
 @media (hover: hover) and (pointer: fine) {
-    .keyword__btn,
-    .keyword__btn--pressed {
+    .keyword__btn {
         transition-property: color, background-color;
         transition-duration: .2s;
     }
-    .keyword__btn:not(.keyword__btn--pressed):hover {
+    .keyword__btn[aria-pressed=false]:hover {
         color: white;
         background-color: var(--primary);
     }
-    .keyword__btn--pressed:hover {
+    .keyword__btn[aria-pressed=true]:hover {
         color: var(--primary);
         background-color: var(--neutral-2);
     }
