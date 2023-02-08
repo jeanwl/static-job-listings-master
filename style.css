@@ -47,13 +47,19 @@ button {
     cursor: pointer;
 }
 
-/* move-up? */
 @keyframes fade-in {
     from {
         opacity: 0;
     }
     to {
         opacity: 1;
+    }
+}
+@keyframes slide-up {
+    from {
+        translate: 0 10px;
+    }
+    to {
         translate: 0;
     }
 }
@@ -66,7 +72,6 @@ body {
     background-color: var(--neutral-1);
     font-family: 'League Spartan', sans-serif;
 }
-
 body:before {
     content: '';
     position: absolute;
@@ -84,13 +89,13 @@ body:before {
     background: white;
     box-shadow: var(--shadow);
     border-radius: 5px;
-
-    transition-property: opacity, translate;
-    transition-duration: 0.4s;
 }
 .filters:has(.filters__list:empty) {
     opacity: 0;
     pointer-events: none;
+}
+.filters:has(.filters__list:not(:empty)) {
+    transition: opacity 0.4s;
 }
 @media (max-width: 767.98px) {
     .filters {
@@ -179,9 +184,11 @@ body:before {
     border-radius: 5px;
     box-shadow: var(--shadow);
     opacity: 0;
-    translate: 0 10px;
 
-    animation: fade-in 1s forwards calc(var(--rank) * 0.1s);
+    animation-name: fade-in, slide-up;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-delay: calc(var(--rank) * 0.1s);
 }
 .job--featured:before {
     content: '';
@@ -209,6 +216,32 @@ body:before {
 }
 #jobs[aria-busy=false] .jobs__loader {
     display: none;
+}
+
+.jobs__error {
+    text-align: center;
+
+    animation: fade-in 1s forwards;
+}
+#jobs[aria-busy=true] .jobs__error,
+#jobs[aria-busy=false]:has(.jobs:not(:empty)) .jobs__error {
+    display: none;
+}
+
+.jobs__reload {
+    color: white;
+    background-color: var(--primary);
+    margin-top: 10px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .jobs__reload {
+        transition-property: color, background-color;
+        transition-duration: .2s;
+    }
+    .jobs__reload:hover {
+        color: var(--primary);
+        background-color: var(--neutral-2);
+    }
 }
 
 .loader__circle {

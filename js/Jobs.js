@@ -1,38 +1,46 @@
 import { reactive, html } from './arrow.js'
 
-export default class Jobs {
+export class Jobs {
     constructor(filters) {
         this.filters = filters
+        this.url = 'data.json'
 
         this.data = reactive({
             jobs: [],
             jobsAreLoading: "true"
         })
 
-        this.init()
+        this.loadJobs()
     }
 
-    async init() {
-        // await new Promise(r => setTimeout(r, 4000))
-
-        this.data.jobs = await this.getJobs()
+    async loadJobs() {
+        this.data.jobsAreLoading = "true"
         
+        const artificialLatency = 3000
+
+        await new Promise(r => setTimeout(r, artificialLatency))
+
+        const jobs = await this.getJobs()
+
+        if (jobs) this.data.jobs = jobs
+
         this.data.jobsAreLoading = "false"
     }
 
     async getJobs() {
-        const url = 'data.json'
+        try {
+            const jobs = await (await fetch(this.url)).json()
 
-        // manage error empty jobsList reload button?
-        const jobs = await (await fetch(url)).json()
+            for (const job of jobs) {
+                const keywords = [job.role, job.level, ...job.languages.concat(job.tools)]
+                
+                job.keywords = keywords.filter(Boolean)
+            }
 
-        for (const job of jobs) {
-            const keywords = [job.role, job.level, ...job.languages.concat(job.tools)]
-            
-            job.keywords = keywords.filter(Boolean)
+            return jobs
+        } catch {
+            return false
         }
-
-        return jobs
     }
 
     getFilteredJobs() {
@@ -48,6 +56,7 @@ export default class Jobs {
     render() {
         const ariaBusy = () => this.data.jobsAreLoading
         const reactiveJobs = () => this.renderJobs()
+        const onClick = () => this.loadJobs()
 
         return html`
 
@@ -60,6 +69,13 @@ export default class Jobs {
                 <div class="loader__circle"></div>
                 <div class="loader__circle"></div>
                 <div class="loader__circle"></div>
+            </div>
+
+            <div class="jobs__error">
+                <p>There was an error loading jobs.</p>
+                <button class="keyword__btn jobs__reload" @click="${onClick}">
+                    Reload jobs
+                </button>
             </div>
 
             <ul class="jobs">${reactiveJobs}</ul>
@@ -170,11 +186,10 @@ export default class Jobs {
 
     renderKeywords(job) {
         const keywords = job.keywords
-        console.log('render keywords')
 
         if (keywords.length == 0) return ''
 
-        const reactiveKeywords = () => this.renderKeywordsList(keywords)
+        const reactiveKeywords = this.renderKeywordsList(keywords)
 
         return html`
         
@@ -208,7 +223,7 @@ export default class Jobs {
                 </button>
             </li>
     
-            `.key(Math.random())
+            `
         })
     }
 }

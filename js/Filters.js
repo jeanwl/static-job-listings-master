@@ -1,10 +1,45 @@
 import { reactive, html } from './arrow.js'
 
-export default class Filters {
+export class Filters {
     constructor() {
+        this.storageKey = 'filters'
+        this.defaultFilters = ['Frontend', 'CSS', 'JavaScript']
+
         this.data = reactive({
-            filters: []
+            filters: this.getFilters()
         })
+
+        this.data.$on('filters', () => this.saveFilters())
+    }
+
+    getFilters() {
+        const filters = localStorage.getItem(this.storageKey)
+
+        return filters ? JSON.parse(filters) : this.defaultFilters
+    }
+
+    saveFilters() {
+        const filters = JSON.stringify(this.data.filters)
+
+        localStorage.setItem(this.storageKey, filters)
+    }
+
+    get() {
+        return this.data.filters
+    }
+
+    toggle(filter) {
+        const { filters } = this.data
+        const index = filters.indexOf(filter)
+        
+        if (index < 0) filters.push(filter)
+        else filters.splice(index, 1)
+    }
+
+    clear() {
+        const filters = this.data.filters
+
+        filters.splice(0, filters.length)
     }
 
     render() {
@@ -42,23 +77,5 @@ export default class Filters {
     
             `
         })
-    }
-
-    get() {
-        return this.data.filters
-    }
-
-    toggle(filter) {
-        const { filters } = this.data
-        const index = filters.indexOf(filter)
-        
-        if (index < 0) filters.push(filter)
-        else filters.splice(index, 1)
-    }
-
-    clear() {
-        const filters = this.data.filters
-
-        filters.splice(0, filters.length)
     }
 }
