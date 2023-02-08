@@ -3,7 +3,7 @@ import { reactive, html } from './arrow.js'
 export class Jobs {
     constructor(filters) {
         this.filters = filters
-        this.url = 'data.json'
+        this.url = location.search.includes('error') ? 'wrong.json' : 'data.json'
 
         this.data = reactive({
             jobs: [],
@@ -25,6 +25,8 @@ export class Jobs {
         if (jobs) this.data.jobs = jobs
 
         this.data.jobsAreLoading = "false"
+
+        if (location.search.includes('error')) this.url = 'data.json'
     }
 
     async getJobs() {
