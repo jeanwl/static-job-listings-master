@@ -94,11 +94,9 @@ export class Jobs {
 
     renderJobs() {
         return this.data.filteredJobs.map((job, i) => {
-            const isFeatured = job.featured == true
-            
             return html`
     
-            <li class="job" data-featured="${isFeatured}" style="--rank: ${i}">
+            <li class="job" data-featured="${job.featured}" style="--rank: ${i}">
                 <article class="job__wrapper">
                     <h3 class="visually-hidden">${job.position} at ${job.company}</h3>
 
@@ -205,8 +203,6 @@ export class Jobs {
     }
 
     renderKeywordsList(keywords) {
-        console.log('renderKeywordsList')
-
         return keywords.map(keyword => {
             const isPressed = () => this.filters.get().includes(keyword) ? 'true' : 'false'
             

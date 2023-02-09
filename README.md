@@ -28,6 +28,7 @@ Users should be able to:
 - See hover states for all interactive elements on the page
 - Filter job listings based on the keywords
 - [Added] Reload jobs if any error is raised during data fetching [Error demo](https://jeanwll.github.io/static-job-listings-master/?error)
+- [Added] Save filters in localStorage
 
 ## Built with
 
@@ -66,6 +67,30 @@ class Jobs {
 }
 ```
 
+- Kept templates simple and left spaces around to separate from js
+
+```js
+class Filters {
+    ...
+    
+    renderFilters() {
+        return this.data.filters.map(filter => {
+            return html`
+    
+            <li class="filter">
+                <span>${filter}</span>
+                <button class="filter__btn" @click="${() => this.toggle(filter)}"
+                    aria-controls="jobs">
+                    <span class="visually-hidden">Remove filter</span>
+                </button>
+            </li>
+    
+            `
+        })
+    }
+}
+```
+
 - Meticulous CSS media queries
 
 ```css
@@ -98,14 +123,18 @@ class Jobs {
 
 ### Accessibility and ARIA
 
-`visually-hidden` CSS class is more reliable than `aria-label`.
+- `visually-hidden` CSS class is more reliable than `aria-label`.
+
 `aria-label` should be well supported for buttons, but I used `visually-hidden` over `aria-label` for consistency.
 [When to use aria-label or screen reader only text](https://bootcamp.uxdesign.cc/when-to-use-aria-label-or-screen-reader-only-text-cd778627b43b)
 
-`aria-live` on the jobs list section to suggest *dynamic content*.
-`aria-controls="jobs"` on filtering and keywords toggle buttons to *specify elements association*.
-`aria-busy` on the job list to convey *pending data fetching*.
-`aria-pressed` on keywords *toggle buttons*
+- `aria-live` on the jobs list section to suggest *dynamic content*.
+
+- `aria-controls="jobs"` on filtering and keywords toggle buttons to *specify elements association*.
+
+- `aria-busy` on the job list to convey *pending data fetching*.
+
+- `aria-pressed` on keywords *toggle buttons*
 
 ### Semantic CSS
 
@@ -125,9 +154,11 @@ Using previously mentionned aria attributes and properties is a great way to wri
 
 ### Asymmetric design
 
-[Truncation is not a content strategy](https://css-tricks.com/embracing-asymmetrical-design/)
+[**Truncation is not a content strategy**](https://css-tricks.com/embracing-asymmetrical-design/)
 My first approach for the layout to adapt to user-generated content (Company name, Job title, keywords list) was to use `text-overflow: ellipsis` paired with `title` attribute.
+
 Furthering my research on accessibility, I realized `title` wouldn't be helpful on touch-based devices.
+
 This is when I came across the above article and decided to embrace *asymmetric design*.
 
 Here is an example of a tricky one using unusual flexbox combinations:
@@ -154,9 +185,13 @@ The design currently doesn't convey a very clear *call to action* aka where to c
 ### HTML Semantic considerations 
 
 I am unsure about the html semantic used to describe the job.
+
 Something that came to my mind was the definition list `<dl>`.
+
 However after further researches I figured "Position, Company, ..." are not really *terms*.
+
 Using simple unordered list `<ul>` would make the layout very difficult to achieve, especially while implementing *asymmetric design*, since you can't have generic `<div>` between `<ul>` and `<li>`.
+
 I decided to simply use a succession of paragraphs `<p>`.
 
 ## Author
