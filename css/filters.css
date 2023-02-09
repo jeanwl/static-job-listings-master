@@ -1,0 +1,96 @@
+.filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 72px;
+    background: white;
+    box-shadow: var(--shadow);
+    border-radius: 5px;
+}
+.filters[data-empty] {
+    opacity: 0;
+    pointer-events: none;
+}
+.filters:not([data-empty]) {
+    transition: opacity 0.4s;
+}
+@media (max-width: 767.98px) {
+    .filters {
+        margin-bottom: 56px;
+    }
+}
+@media (min-width: 768px) {
+    .filters {
+        margin-bottom: 40px;
+    }
+}
+
+.filters__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-block: 20px;
+}
+@media (max-width: 767.98px) {
+    .filters__list {
+        padding-left: 20px;
+    }
+}
+@media (min-width: 768px) {
+    .filters__list {
+        padding-left: 40px;
+    }
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    color: var(--primary);
+    background-color: var(--neutral-2);
+    font-weight: 700;
+    border-radius: 4px 0 0 4px;
+
+    animation: fade-in 1s forwards;
+}
+
+.filter__btn {
+    width: 32px;
+    height: 32px;
+    margin-left: 8px;
+    background: url(../images/icon-remove.svg) no-repeat center, var(--primary);
+    border-radius: 0 4px 4px 0;
+}
+@media (hover: hover) and (pointer: fine) {
+    .filter__btn {
+        transition: background-color .2s;
+    }
+    .filter__btn:hover {
+        background-color: var(--neutral-4);
+    }
+}
+
+.filters__clear {
+    max-height: 90px;
+    padding: 25px;
+    color: var(--neutral-3);
+    font-weight: 700;
+    user-select: none;
+}
+@media (hover: hover) and (pointer: fine) {
+    .filters__clear {
+        text-decoration: underline transparent 0.5px;
+        transition-property: text-decoration-color, color;
+        transition-duration: .2s;
+    }
+
+    .filters__clear:hover {
+        text-decoration-color: inherit;
+        color: var(--primary);
+    }
+}
+@media (min-width: 768px) {
+    .filters__clear {
+        margin-right: 15px;
+    }
+}

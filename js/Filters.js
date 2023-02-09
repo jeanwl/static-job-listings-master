@@ -1,4 +1,4 @@
-import { reactive, html } from './arrow.js'
+import { reactive, html } from './lib/arrow.js'
 
 export class Filters {
     constructor() {
@@ -8,8 +8,18 @@ export class Filters {
         this.data = reactive({
             filters: this.getFilters()
         })
+    }
 
-        this.data.$on('filters', () => this.saveFilters())
+    init(jobs) {
+        this.jobs = jobs
+
+        this.data.$on('filters', () => this.onFiltersUpdate())
+    }
+
+    onFiltersUpdate() {
+        this.jobs.filterJobs(this.data.filters)
+
+        this.saveFilters()
     }
 
     getFilters() {
@@ -43,17 +53,17 @@ export class Filters {
     }
 
     render() {
-        const reactiveFilters = () => this.renderFilters()
-        const onClick = () => this.clear()
+        const isEmpty = () => this.data.filters.length == 0
 
         return html`
 
-        <section class="filters">
+        <section class="filters" data-empty="${isEmpty}">
             <h2 class="visually-hidden">Jobs Filters</h2>
 
-            <ul class="filters__list">${reactiveFilters}</ul>
+            <ul class="filters__list">${() => this.renderFilters()}</ul>
 
-            <button class="filters__clear" @click="${onClick}" aria-controls="jobs">
+            <button class="filters__clear" @click="${() => this.clear()}"
+                aria-controls="jobs">
                 Clear
                 <span class="visually-hidden">filters</span>
             </button>
@@ -64,13 +74,12 @@ export class Filters {
 
     renderFilters() {
         return this.data.filters.map(filter => {
-            const onClick = () => this.toggle(filter)
-
             return html`
     
             <li class="filter">
                 <span>${filter}</span>
-                <button class="filter__btn" @click="${onClick}" aria-controls="jobs">
+                <button class="filter__btn" @click="${() => this.toggle(filter)}"
+                    aria-controls="jobs">
                     <span class="visually-hidden">Remove filter</span>
                 </button>
             </li>

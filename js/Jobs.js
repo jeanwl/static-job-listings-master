@@ -1,20 +1,36 @@
-import { reactive, html } from './arrow.js'
+import { reactive, html } from './lib/arrow.js'
 
 export class Jobs {
     constructor(filters) {
+        this.demoError = location.search.includes('error')
+        
         this.filters = filters
-        this.url = location.search.includes('error') ? 'wrong.json' : 'data.json'
+        this.jobs = []
+        this.filtersList = filters.get()
+        this.url = this.demoError ? 'wrong.json' : 'data.json'
 
         this.data = reactive({
-            jobs: [],
-            jobsAreLoading: "true"
+            filteredJobs: [],
+            jobsAreLoading: true
         })
 
         this.loadJobs()
+
+        filters.init(this)
+    }
+
+    filterJobs(filters = this.filtersList) {
+        this.filtersList = filters
+
+        this.data.filteredJobs = filters.length == 0
+            ? [...this.jobs]
+            : this.jobs.filter(job =>
+                filters.every(filter => job.keywords.includes(filter))
+            )
     }
 
     async loadJobs() {
-        this.data.jobsAreLoading = "true"
+        this.data.jobsAreLoading = true
         
         const artificialLatency = 3000
 
@@ -22,11 +38,13 @@ export class Jobs {
 
         const jobs = await this.getJobs()
 
-        if (jobs) this.data.jobs = jobs
+        if (jobs) this.jobs = jobs
 
-        this.data.jobsAreLoading = "false"
+        this.data.jobsAreLoading = false
 
-        if (location.search.includes('error')) this.url = 'data.json'
+        this.filterJobs()
+
+        if (this.demoError) this.url = 'data.json'
     }
 
     async getJobs() {
@@ -45,24 +63,13 @@ export class Jobs {
         }
     }
 
-    getFilteredJobs() {
-        const filters = this.filters.get()
-
-        return filters.length == 0
-            ? [...this.data.jobs]
-            : this.data.jobs.filter(job =>
-                filters.every(filter => job.keywords.includes(filter))
-            )
-    }
-
     render() {
-        const ariaBusy = () => this.data.jobsAreLoading
-        const reactiveJobs = () => this.renderJobs()
-        const onClick = () => this.loadJobs()
+        const isEmpty = () => this.data.filteredJobs.length == 0
 
         return html`
 
-        <section id="jobs" aria-live="polite" aria-busy="${ariaBusy}">
+        <section id="jobs" aria-live="polite" data-empty="${isEmpty}"
+            aria-busy="${() => this.data.jobsAreLoading}">
             <h2 class="visually-hidden">Jobs Listing</h2>
 
             <div class="jobs__loader">
@@ -75,22 +82,20 @@ export class Jobs {
 
             <div class="jobs__error">
                 <p>There was an error loading jobs.</p>
-                <button class="keyword__btn jobs__reload" @click="${onClick}">
+                <button class="keyword__btn jobs__reload" @click="${() => this.loadJobs()}">
                     Reload jobs
                 </button>
             </div>
 
-            <ul class="jobs">${reactiveJobs}</ul>
+            <ul class="jobs">${() => this.renderJobs()}</ul>
         </section>
 
         `
     }
 
     renderJobs() {
-        return this.getFilteredJobs().map((job, i) => {
+        return this.data.filteredJobs.map((job, i) => {
             const classList = `job${job.featured ? ' job--featured' : ''}`
-            const renderDescription = this.renderDescription(job)
-            const renderKeywords = this.renderKeywords(job)
 
             return html`
     
@@ -98,8 +103,8 @@ export class Jobs {
                 <article class="job__wrapper">
                     <h3 class="visually-hidden">${job.position} at ${job.company}</h3>
 
-                    ${renderDescription}
-                    ${renderKeywords}
+                    ${this.renderDescription(job)}
+                    ${this.renderKeywords(job)}
                 </article>
             </li>
     
@@ -108,8 +113,6 @@ export class Jobs {
     }
 
     renderDescription(job) {
-        const renderTags = this.renderTags(job)
-
         const logo = job.logo ? html`
         
         <img src="${job.logo}" alt="${job.company} Logo" class="job__logo">
@@ -125,7 +128,7 @@ export class Jobs {
 
             <div class="job__main">
                 <div class="job__top">
-                    ${renderTags}
+                    ${this.renderTags(job)}
                     
                     <p class="job__company">
                         <span class="visually-hidden">Company</span>
@@ -191,24 +194,21 @@ export class Jobs {
 
         if (keywords.length == 0) return ''
 
-        const reactiveKeywords = this.renderKeywordsList(keywords)
-
         return html`
         
         <section class="job__keywords">
             <h4 class="visually-hidden">Job keywords</h4>
 
-            <ul class="keywords__list">${reactiveKeywords}</ul>
+            <ul class="keywords__list">${this.renderKeywordsList(keywords)}</ul>
         </section>
 
         `
     }
 
     renderKeywordsList(keywords) {
-        const filters = this.filters.get()
+        const filters = this.filtersList
         
         return keywords.map(keyword => {
-            const onClick = () => this.filters.toggle(keyword)
             const isPressed = filters.includes(keyword)
             const label = `${isPressed ? 'Remove from' : 'Add to'} filters`
             
@@ -217,7 +217,7 @@ export class Jobs {
             <li class="job__keyword">
                 <span class="visually-hidden">${keyword}</span>
                 
-                <button class="keyword__btn" @click="${onClick}"
+                <button class="keyword__btn" @click="${() => this.filters.toggle(keyword)}"
                     aria-pressed="${isPressed}"
                     aria-controls="jobs">
                     <span class="visually-hidden">${label}</span>
