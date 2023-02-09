@@ -12,7 +12,7 @@
     pointer-events: none;
 }
 .filters:not([data-empty]) {
-    transition: opacity 0.4s;
+    transition: opacity 1s;
 }
 @media (max-width: 767.98px) {
     .filters {
@@ -83,7 +83,6 @@
         transition-property: text-decoration-color, color;
         transition-duration: .2s;
     }
-
     .filters__clear:hover {
         text-decoration-color: inherit;
         color: var(--primary);

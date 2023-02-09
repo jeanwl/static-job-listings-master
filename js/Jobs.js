@@ -6,7 +6,6 @@ export class Jobs {
         
         this.filters = filters
         this.jobs = []
-        this.filtersList = filters.get()
         this.url = this.demoError ? 'wrong.json' : 'data.json'
 
         this.data = reactive({
@@ -19,8 +18,8 @@ export class Jobs {
         filters.init(this)
     }
 
-    filterJobs(filters = this.filtersList) {
-        this.filtersList = filters
+    filterJobs() {
+        const filters = this.filters.get()
 
         this.data.filteredJobs = filters.length == 0
             ? [...this.jobs]
@@ -80,14 +79,14 @@ export class Jobs {
                 <div class="loader__circle"></div>
             </div>
 
+            <ul class="jobs">${() => this.renderJobs()}</ul>
+
             <div class="jobs__error">
                 <p>There was an error loading jobs.</p>
                 <button class="keyword__btn jobs__reload" @click="${() => this.loadJobs()}">
                     Reload jobs
                 </button>
             </div>
-
-            <ul class="jobs">${() => this.renderJobs()}</ul>
         </section>
 
         `
@@ -95,11 +94,11 @@ export class Jobs {
 
     renderJobs() {
         return this.data.filteredJobs.map((job, i) => {
-            const classList = `job${job.featured ? ' job--featured' : ''}`
-
+            const isFeatured = job.featured == true
+            
             return html`
     
-            <li class="${classList}" style="--rank: ${i}">
+            <li class="job" data-featured="${isFeatured}" style="--rank: ${i}">
                 <article class="job__wrapper">
                     <h3 class="visually-hidden">${job.position} at ${job.company}</h3>
 
@@ -108,7 +107,7 @@ export class Jobs {
                 </article>
             </li>
     
-            `.key(Math.random())
+            `
         })
     }
 
@@ -206,11 +205,10 @@ export class Jobs {
     }
 
     renderKeywordsList(keywords) {
-        const filters = this.filtersList
-        
+        console.log('renderKeywordsList')
+
         return keywords.map(keyword => {
-            const isPressed = filters.includes(keyword)
-            const label = `${isPressed ? 'Remove from' : 'Add to'} filters`
+            const isPressed = () => this.filters.get().includes(keyword) ? 'true' : 'false'
             
             return html`
     
@@ -220,7 +218,7 @@ export class Jobs {
                 <button class="keyword__btn" @click="${() => this.filters.toggle(keyword)}"
                     aria-pressed="${isPressed}"
                     aria-controls="jobs">
-                    <span class="visually-hidden">${label}</span>
+                    <span class="visually-hidden">Filter ${keyword}</span>
                     <span aria-hidden="true">${keyword}</span>
                 </button>
             </li>

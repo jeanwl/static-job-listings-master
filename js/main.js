@@ -5,12 +5,9 @@ import { Jobs } from './Jobs.js'
 const filters = new Filters()
 const jobs = new Jobs(filters)
 
-const renderFilters = filters.render()
-const renderJobs = jobs.render()
-
 html`
 
-${renderFilters}
-${renderJobs}
+${filters.render()}
+${jobs.render()}
 
 `(document.body)

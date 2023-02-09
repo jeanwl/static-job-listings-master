@@ -15,7 +15,7 @@
     animation-fill-mode: forwards;
 }
 #jobs[aria-busy] .jobs__error,
-#jobs:not([data-empty]) .jobs__error {
+.jobs:not(:empty) + .jobs__error {
     display: none;
 }
 
@@ -60,7 +60,7 @@
     animation-fill-mode: forwards;
     animation-delay: calc(var(--rank) * 0.1s);
 }
-.job--featured:before {
+.job[data-featured=true]:before {
     content: '';
     position: absolute;
     inset: 0 auto 0 0;
@@ -209,7 +209,6 @@
     .job__link {
         transition: color .2s;
     }
-    
     .job__link:hover {
         color: var(--primary);
     }
