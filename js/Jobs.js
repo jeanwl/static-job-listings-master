@@ -2,52 +2,35 @@ import { reactive, html } from './lib/arrow.js'
 
 export class Jobs {
     constructor(filters) {
-        this.demoError = location.search.includes('error')
-        
         this.filters = filters
-        this.jobs = []
+        this.demoError = location.search.includes('error')
         this.url = this.demoError ? 'wrong.json' : 'data.json'
 
         this.data = reactive({
-            filteredJobs: [],
+            jobs: [],
             jobsAreLoading: true
         })
 
         this.loadJobs()
-
-        filters.init(this)
-    }
-
-    filterJobs() {
-        const filters = this.filters.get()
-
-        this.data.filteredJobs = filters.length == 0
-            ? [...this.jobs]
-            : this.jobs.filter(job =>
-                filters.every(filter => job.keywords.includes(filter))
-            )
     }
 
     async loadJobs() {
-        this.data.jobsAreLoading = true
-        
-        const artificialLatency = 3000
+        const { data } = this
 
-        await new Promise(r => setTimeout(r, artificialLatency))
+        data.jobsAreLoading = true
 
-        const jobs = await this.getJobs()
+        data.jobs = await this.getJobs()
 
-        if (jobs) this.jobs = jobs
-
-        this.data.jobsAreLoading = false
-
-        this.filterJobs()
+        data.jobsAreLoading = false
 
         if (this.demoError) this.url = 'data.json'
     }
 
     async getJobs() {
         try {
+            const artificialLatency = 3000
+            await new Promise(r => setTimeout(r, artificialLatency))
+            
             const jobs = await (await fetch(this.url)).json()
 
             for (const job of jobs) {
@@ -58,17 +41,26 @@ export class Jobs {
 
             return jobs
         } catch {
-            return false
+            return []
         }
     }
 
-    render() {
-        const isEmpty = () => this.data.filteredJobs.length == 0
+    getFilteredJobs() {
+        const filters = this.filters.get()
 
+        if (filters.length == 0) return [...this.data.jobs]
+
+        return this.data.jobs.filter(job =>
+            filters.every(filter => job.keywords.includes(filter))
+        )
+    }
+
+    render() {
         return html`
 
-        <section id="jobs" aria-live="polite" data-empty="${isEmpty}"
+        <section id="jobs" aria-live="polite"
             aria-busy="${() => this.data.jobsAreLoading}">
+            
             <h2 class="visually-hidden">Jobs Listing</h2>
 
             <div class="jobs__loader">
@@ -83,7 +75,9 @@ export class Jobs {
 
             <div class="jobs__error">
                 <p>There was an error loading jobs.</p>
-                <button class="keyword__btn jobs__reload" @click="${() => this.loadJobs()}">
+                <button class="keyword__btn jobs__reload"
+                    @click="${() => this.loadJobs()}">
+                    
                     Reload jobs
                 </button>
             </div>
@@ -93,9 +87,9 @@ export class Jobs {
     }
 
     renderJobs() {
-        return this.data.filteredJobs.map((job, i) => {
+        return this.getFilteredJobs().map((job, i) => {
             return html`
-    
+
             <li class="job" data-featured="${job.featured}" style="--rank: ${i}">
                 <article class="job__wrapper">
                     <h3 class="visually-hidden">${job.position} at ${job.company}</h3>
@@ -204,16 +198,20 @@ export class Jobs {
 
     renderKeywordsList(keywords) {
         return keywords.map(keyword => {
-            const isPressed = () => this.filters.get().includes(keyword) ? 'true' : 'false'
+            const isPressed = () => (
+                this.filters.get().includes(keyword) ? 'true' : 'false'
+            )
             
             return html`
     
             <li class="job__keyword">
                 <span class="visually-hidden">${keyword}</span>
                 
-                <button class="keyword__btn" @click="${() => this.filters.toggle(keyword)}"
+                <button class="keyword__btn"
                     aria-pressed="${isPressed}"
-                    aria-controls="jobs">
+                    aria-controls="jobs"
+                    @click="${() => this.filters.toggle(keyword)}">
+                    
                     <span class="visually-hidden">Filter ${keyword}</span>
                     <span aria-hidden="true">${keyword}</span>
                 </button>

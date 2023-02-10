@@ -1,10 +1,10 @@
-# Frontend Mentor - Job listings with filtering solution
-
-This is a solution to the [Job listings with filtering challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/job-listings-with-filtering-ivstIPCt). Frontend Mentor challenges help you improve your coding skills by building realistic projects. 
-
 Live site: https://jeanwll.github.io/static-job-listings-master/
 
-![](./screenshot.jpg)
+![](./preview.png)
+
+# Frontend Mentor - Job listings with filtering solution
+
+This is a solution to the [Job listings with filtering challenge on Frontend Mentor](https://www.frontendmentor.io/challenges/job-listings-with-filtering-ivstIPCt). Frontend Mentor challenges help you improve your coding skills by building realistic projects.
 
 ## Table of contents
 
@@ -54,7 +54,7 @@ ${jobs.render()}
 `(document.body)
 ```
 
-- Divided components part rendering into 'render*' class methods
+- Divided component parts rendering into different `render*()` class methods
 
 ```js
 class Jobs {
@@ -65,11 +65,7 @@ class Jobs {
   renderDescription(job) {}
   renderKeywords(job) {}
 }
-```
 
-- Kept templates simple and left spaces around to separate from js
-
-```js
 class Filters {
     ...
     
@@ -79,42 +75,15 @@ class Filters {
     
             <li class="filter">
                 <span>${filter}</span>
-                <button class="filter__btn" @click="${() => this.toggle(filter)}"
-                    aria-controls="jobs">
+                <button class="filter__btn" aria-controls="jobs"
+                    @click="${() => this.toggle(filter)}">
+                    
                     <span class="visually-hidden">Remove filter</span>
                 </button>
             </li>
     
             `
         })
-    }
-}
-```
-
-- Meticulous CSS media queries
-
-```css
-@media (max-width: 767.98px) {
-    .job__link {
-        font-size: 15px;
-    }
-}
-@media (min-width: 768px) and (max-width: 1023.98px) {
-    .job__link {
-        font-size: 18px;
-    }
-}
-@media (min-width: 1024px) {
-    .job__link {
-        font-size: 22px;
-    }
-}
-@media (hover: hover) and (pointer: fine) {
-    .job__link {
-        transition: color .2s;
-    }
-    .job__link:hover {
-        color: var(--primary);
     }
 }
 ```
@@ -148,20 +117,21 @@ Using previously mentionned aria attributes and properties is a great way to wri
 ```
 
 ```css
-.keyword__btn[aria-pressed=true] { }
-.keyword__btn[aria-pressed=false] { }
+.keyword__btn[aria-pressed=true] {}
+.keyword__btn[aria-pressed=false] {}
 ```
 
 ### Asymmetric design
 
 [**Truncation is not a content strategy**](https://css-tricks.com/embracing-asymmetrical-design/)
+
 My first approach for the layout to adapt to user-generated content (Company name, Job title, keywords list) was to use `text-overflow: ellipsis` paired with `title` attribute.
 
 Furthering my research on accessibility, I realized `title` wouldn't be helpful on touch-based devices.
 
-This is when I came across the above article and decided to embrace *asymmetric design*.
+This is when I came across the above article and decided to *embrace asymmetric design*.
 
-Here is an example of a tricky one using unusual flexbox combinations:
+Here is an example using unusual flexbox combinations:
 ```css
 .job__top {
     display: flex;
@@ -172,8 +142,9 @@ Here is an example of a tricky one using unusual flexbox combinations:
     row-gap: 10px;
 }
 ```
-Changing the order on wrap for unpredictable width content:
-[gif of tags wrapping]
+Notice 'new' and 'preview' tags wrapping on top instead of below:
+
+![](./asymmetric_design.gif)
 
 
 ## Continued development

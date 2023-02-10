@@ -8,18 +8,8 @@ export class Filters {
         this.data = reactive({
             filters: this.getFilters()
         })
-    }
-
-    init(jobs) {
-        this.jobs = jobs
-
-        this.data.$on('filters', () => this.onFiltersUpdate())
-    }
-
-    onFiltersUpdate() {
-        this.jobs.filterJobs(this.data.filters)
-
-        this.saveFilters()
+        
+        this.data.$on('filters', () => this.saveFilters())
     }
 
     getFilters() {
@@ -47,7 +37,7 @@ export class Filters {
     }
 
     clear() {
-        const filters = this.data.filters
+        const { filters } = this.data
 
         filters.splice(0, filters.length)
     }
@@ -62,8 +52,9 @@ export class Filters {
 
             <ul class="filters__list">${() => this.renderFilters()}</ul>
 
-            <button class="filters__clear" @click="${() => this.clear()}"
-                aria-controls="jobs">
+            <button class="filters__clear" aria-controls="jobs"
+                @click="${() => this.clear()}">
+                
                 Clear
                 <span class="visually-hidden">filters</span>
             </button>
@@ -78,8 +69,9 @@ export class Filters {
     
             <li class="filter">
                 <span>${filter}</span>
-                <button class="filter__btn" @click="${() => this.toggle(filter)}"
-                    aria-controls="jobs">
+                <button class="filter__btn" aria-controls="jobs"
+                    @click="${() => this.toggle(filter)}">
+                    
                     <span class="visually-hidden">Remove filter</span>
                 </button>
             </li>
