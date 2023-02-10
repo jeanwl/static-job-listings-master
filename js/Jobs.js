@@ -8,7 +8,7 @@ export class Jobs {
 
         this.data = reactive({
             jobs: [],
-            jobsAreLoading: true
+            loading: true
         })
 
         this.loadJobs()
@@ -17,11 +17,11 @@ export class Jobs {
     async loadJobs() {
         const { data } = this
 
-        data.jobsAreLoading = true
+        data.loading = true
 
         data.jobs = await this.getJobs()
 
-        data.jobsAreLoading = false
+        data.loading = false
 
         if (this.demoError) this.url = 'data.json'
     }
@@ -30,8 +30,12 @@ export class Jobs {
         try {
             const artificialLatency = 3000
             await new Promise(r => setTimeout(r, artificialLatency))
+
+            const response = await fetch(this.url)
+
+            if (!response.ok) throw new Error('Bad response')
             
-            const jobs = await (await fetch(this.url)).json()
+            const jobs = await response.json()
 
             for (const job of jobs) {
                 const keywords = [job.role, job.level, ...job.languages.concat(job.tools)]
@@ -59,7 +63,7 @@ export class Jobs {
         return html`
 
         <section id="jobs" aria-live="polite"
-            aria-busy="${() => this.data.jobsAreLoading}">
+            aria-busy="${() => this.data.loading}">
             
             <h2 class="visually-hidden">Jobs Listing</h2>
 

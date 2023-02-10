@@ -1,6 +1,6 @@
 Live site: https://jeanwll.github.io/static-job-listings-master/
 
-![](./preview.png)
+![](./preview1.png)
 
 # Frontend Mentor - Job listings with filtering solution
 
@@ -10,6 +10,7 @@ This is a solution to the [Job listings with filtering challenge on Frontend Men
 
 - [The challenge](#the-challenge)
 - [Built with](#built-with)
+- [Overview](#overview)
 - [Methodology](#methodology)
 - [What I learned](#what-i-learned)
   - [Accessibility and ARIA](#accessibility-and-aria)
@@ -37,6 +38,24 @@ Users should be able to:
 - Flexbox
 - Object Oriented JavaScript
 - [ArrowJS](https://www.arrow-js.com/) - Reactive UI with native JavaScript
+
+## Overview
+
+I picked this project because it was a simple enough data structure to try to setup a JS data-binding system.
+
+After messing up on my own with `Object.defineProperty` and `Proxy`, I realized it was not a simple task.
+
+I searched for a **zero dependencies**, **modern JavaScript** and **lightweight** data-binding tool, I came across [Reef](https://reefjs.com/) and [ArrowJS](https://www.arrow-js.com/).
+
+I chose ArrowJS because I slightly preferred the way it handled events.
+
+ArrowJS is still in an early stage of development, there was not much project to be inspired from or threads of common questions to learn to use it.
+
+I spent a good amount of time figuring out how to use it and how I wanted to use it.
+
+Besides the JavaScript part, I also spent a lot of time testing ARIA and accessibility practices on different **screen readers**, mainly NVDA and Windows Narrator.
+
+I fully rewrote the HTML markup after those experiments.
 
 ## Methodology
 
@@ -67,6 +86,16 @@ class Jobs {
 }
 
 class Filters {
+    ...
+
+    toggle(filter) {
+        const { filters } = this.data
+        const index = filters.indexOf(filter)
+        
+        if (index < 0) filters.push(filter)
+        else filters.splice(index, 1)
+    }
+    
     ...
     
     renderFilters() {
